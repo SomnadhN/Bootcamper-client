@@ -1,0 +1,29 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout the Git repository
+                git 'https://github.com/your-username/your-react-app.git'
+            }
+        }
+
+        stage('Build and Run Docker Image') {
+            steps {
+                // Build the Docker image
+                sh 'docker build -t your-image-name .'
+                
+                // Run the Docker image
+                sh 'docker run -d -p 8080:80 your-image-name'
+            }
+        }
+    }
+
+    post {
+        always {
+            // Cleanup workspace
+            cleanWs()
+        }
+    }
+}
