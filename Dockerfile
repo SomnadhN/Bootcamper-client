@@ -7,7 +7,10 @@ WORKDIR /app
 # Copy the package.json and package-lock.json files into the container
 COPY package*.json ./
 
-# Install dependencies
+# Install npm dependencies including @popperjs/core
+RUN npm install --save-dev @popperjs/core
+
+# Install other npm dependencies
 RUN npm install
 
 # Copy the rest of the application code into the container
@@ -16,8 +19,14 @@ COPY . .
 # Build the React app
 RUN npm run build
 
-# Expose port 3000 (assuming your React app runs on port 3000)
-EXPOSE 3000
+# Use a lightweight base image for the production environment
+FROM nginx:alpine
 
-# Command to run the React app
-CMD ["npm", "start"]
+# Copy the built app from the build stage into the nginx server
+COPY --from=build /app/build /usr/share/nginx/html
+
+# Expose port 80
+EXPOSE 80
+
+# Start the nginx server
+CMD ["nginx", "-g", "daemon off;"]
